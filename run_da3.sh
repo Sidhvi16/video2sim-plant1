@@ -36,7 +36,11 @@ module load anaconda/3
 module load cuda12.8/toolkit/12.8.1
 
 # Activate conda environment
+<<<<<<< HEAD
 source activate da3_env
+=======
+
+>>>>>>> 365926f (Created the first draft of the depth anything model script.)
 
 # Confirm GPU is visible
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
@@ -60,6 +64,11 @@ export OUTPUT_ROOT=/home/crajashekhar/video2sim-conda/data/output/custom
 export TORCH_CUDA_ARCH_LIST="8.0;8.6;8.9;9.0"
 export HF_HOME=/home/crajashekhar/video2sim-conda/data/cache/da3
 export HF_TOKEN="${HF_TOKEN}"
+<<<<<<< HEAD
+=======
+export TORCH_CUDNN_V8_API_ENABLED=0
+export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+>>>>>>> 365926f (Created the first draft of the depth anything model script.)
 
 # Confirm env vars are set
 echo "SCENE_NAME:  ${SCENE_NAME}"
@@ -69,7 +78,11 @@ echo "HF_TOKEN set: $([ -n "$HF_TOKEN" ] && echo YES || echo NO)"
 
 # Run DA3
 echo "Starting DA3 inference..."
+<<<<<<< HEAD
 python3 /home/crajashekhar/video2sim-conda/repo/modules/da3/da3_process.py
+=======
+/home/crajashekhar/.conda/envs/da3_env/bin/python3 /home/crajashekhar/video2sim-conda/repo/modules/da3/da3_process.py
+>>>>>>> 365926f (Created the first draft of the depth anything model script.)
 
 EXIT_CODE=$?
 echo "============================================"
