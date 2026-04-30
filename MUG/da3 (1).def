@@ -1,0 +1,57 @@
+Bootstrap: docker
+From: nvidia/cuda:12.6.1-devel-ubuntu24.04
+
+# ============================================================
+#  DA3 (Depth Anything 3) — Singularity Definition File
+#  For use on SLU Libra HPC (H100 NVL, CUDA 12.x)
+#  Build from ~/video2sim/ with:
+#    module load singularityce/4.1.0-gcc-13.1.0-6uu5j
+#    singularity build --fakeroot da3.sif da3.def
+# ============================================================
+
+%files
+    # Copy the processing script from the cloned repo into the image.
+    # This path is relative to the directory where you run singularity build.
+    # Run the build from ~/video2sim/ so this path resolves correctly.
+    repo/modules/da3/da3_process.py /app/da3/da3_process.py
+
+%environment
+    export DEBIAN_FRONTEND=noninteractive
+    export CUDA_HOME=/usr/local/cuda
+    export PATH=/usr/local/cuda/bin:$PATH
+    export TORCH_CUDA_ARCH_LIST="8.0;8.6;8.9;9.0"
+
+%post
+    export DEBIAN_FRONTEND=noninteractive
+    export TORCH_CUDA_ARCH_LIST="8.0;8.6;8.9;9.0"
+
+    # System dependencies
+    apt-get update && apt-get install -y --no-install-recommends \
+        git \
+        python3-pip \
+        python3-dev \
+        ninja-build \
+        libgl1 \
+        libglib2.0-0 \
+        && rm -rf /var/lib/apt/lists/*
+
+    # PyTorch with CUDA 12.6 support
+    pip install --break-system-packages "torch==2.7.0" \
+        --index-url https://download.pytorch.org/whl/cu126
+
+    # Clone and install Depth Anything 3
+    mkdir -p /app/da3
+    cd /app/da3
+    git clone https://github.com/ByteDance-Seed/Depth-Anything-3.git .
+    # Remove xformers dependency (not available on all CUDA configs)
+    sed -i '/xformers/d' pyproject.toml
+    pip install --break-system-packages .
+
+%runscript
+    cd /app/da3
+    exec python3 /app/da3/da3_process.py "$@"
+
+%labels
+    Author Augustine Kinyanzui
+    Version 1.0
+    Description DA3 depth estimation for Video2Sim pipeline
